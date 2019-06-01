@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:package_who/mockDataBase.dart';
 
-
+import 'package:url_launcher/url_launcher.dart';
 //main() => runApp(new MyApp());
 import 'package:pub_client/pub_client.dart';
 
@@ -11,7 +13,7 @@ import 'DatabaseWrapper.dart';
 void main() async{
   print("Starting");
   runApp(MyApp());
-  print("Starting pubclient");
+ /* print("Starting pubclient");
   var client = new PubClient();
   print("Starting app");
   Future<List<Package>> packages = readData();
@@ -27,7 +29,7 @@ void main() async{
       print("Data already fetched");
       doStuff(onValue);
     }
-  });
+  });*/
 }
 
  doStuff(List<Package> packages) {
@@ -85,16 +87,50 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   List<Package> packages =  [];
-  void _updateList() {
+  ScrollController _controller;
+  _scrollListener() {
+    if (_controller.offset >= _controller.position.maxScrollExtent &&
+        !_controller.position.outOfRange) {
+      setState(() {
+        print("reach the bottom");
+      });
+    }
+    if (_controller.offset <= _controller.position.minScrollExtent &&
+        !_controller.position.outOfRange) {
+      setState(() {
+        print("reach the top");
+      });
+    }
+  }
+
+
+  @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+    List<Package> newItems = await new PubClient().getAllPackages();
     setState(() {
+      packages = newItems;
+    });
+  }
+
+  void _updateList() {
+    setState(()  {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
+
     });
   }
 
+
+  @override
+  void initState() {
+    _controller = ScrollController();
+    _controller.addListener(_scrollListener);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,11 +149,90 @@ class _MyHomePageState extends State<MyHomePage> {
       body: ListView.builder(
         itemCount: packages.length,
         itemBuilder: (context, index) {
-          return ListTile(
-            title: Text('${packages[index]}'),
+          return PackageTile(
+              package: packages[index],
+              onTap: () {
+                  Navigator.of(context).push(CupertinoPageRoute(
+                      builder: (context) {
+                          return Scaffold(
+                              appBar: AppBar(
+                                  title: Text(packages[index].name)
+                              ),
+                              body: PackageWidget(name: packages[index].name),
+                          );
+                      }
+                  ));
+              },
           );
+
         },
+        physics: BouncingScrollPhysics(),
+        controller: _controller
       ),
     );
   }
 }
+
+class PackageTile extends StatelessWidget {
+  final Package package;
+  final VoidCallback onTap;
+
+  const PackageTile({Key key, this.package, this.onTap}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+        onTap: onTap,
+        title: Text(package.name),
+    );
+  }
+}
+
+class PackageWidget extends StatefulWidget {
+    final String name;
+
+  const PackageWidget({Key key, this.name}) : super(key: key);
+
+  @override
+  PackageWidgetState createState() {
+    return new PackageWidgetState();
+  }
+}
+
+class PackageWidgetState extends State<PackageWidget> {
+
+
+    Future<FullPackage> fullPackageFuture;
+
+    @override
+  void initState() {
+    super.initState();
+
+    fullPackageFuture = getFullPackage(widget.name);
+  }
+  @override
+  Widget build(BuildContext context) {
+
+    return FutureBuilder<FullPackage>(
+        future: fullPackageFuture,
+        builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+                return CircularProgressIndicator();
+            }
+            List<Version> versions = snapshot.data.versions;
+            return ListView.builder(
+                itemCount: versions.length,
+                itemBuilder: (context, index) {
+                    return ListTile(
+                        title: Text(versions[index].version),
+                    );
+                },
+            );
+        }
+      );
+  }
+}
+
+
+
+

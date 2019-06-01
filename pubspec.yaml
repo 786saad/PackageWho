@@ -22,6 +22,7 @@ dependencies:
   pub_client: ^3.0.3
   pubspec_parse: ^0.1.4
   shared_preferences: ^0.4.3
+  url_launcher: ^3.0.3
 
 dev_dependencies:
   flutter_test:
