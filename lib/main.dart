@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(new MyApp());
+//main() => runApp(new MyApp());
+import 'package:pub_client/pub_client.dart';
 
+void main() async{
+  var client = new PubClient();
+  List<Package> packages = await client.getAllPackages();
+
+  Package package = packages.first;
+  print(package.name);
+
+  print(package.hashCode);
+  print(package.latest);
+  print(package.new_version_url);
+  print(package.version_url);
+  print(".....");
+  print(package.toJson());
+}
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -54,6 +69,20 @@ class _MyHomePageState extends State<MyHomePage> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
+  }
+  void getpackages() {
+    //var client = new PubClient();
+//  List<Package> packages = await client.getAllPackages();
+//
+//  Package package = packages.first;
+//  print(package.name);
+//  print(package.hashCode);
+//  print(package.latest);
+//  print(package.new_version_url);
+//  print(package.version_url);
+//  print(".....");
+//  print(package.toJson());
+//
   }
 
   @override
