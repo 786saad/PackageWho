@@ -1,12 +1,36 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 
 //main() => runApp(new MyApp());
 import 'package:pub_client/pub_client.dart';
 
-void main() async{
-  var client = new PubClient();
-  List<Package> packages = await client.getAllPackages();
+import 'DatabaseWrapper.dart';
 
+void main() async{
+  print("Starting");
+  runApp(MyApp());
+  print("Starting pubclient");
+  var client = new PubClient();
+  print("Starting app");
+  Future<List<Package>> packages = readData();
+  packages.then((onValue) {
+    if (onValue == null) {
+      print("Fetching data");
+      packages = client.getAllPackages();
+      packages.then((onValue) {
+        saveData(onValue);
+        doStuff(onValue);
+      });
+    } else {
+      print("Data already fetched");
+      doStuff(onValue);
+    }
+  });
+}
+
+ doStuff(List<Package> packages) {
   Package package = packages.first;
   print(package.name);
 
