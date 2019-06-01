@@ -10,7 +10,7 @@ description: flutter package update notifier
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.2.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -22,6 +22,10 @@ dependencies:
   pub_client: ^3.0.3
   pubspec_parse: ^0.1.4
   shared_preferences: ^0.4.3
+  mockito: any
+  test: any
+  sqflite: any
+  path_provider: any
 
 dev_dependencies:
   flutter_test:

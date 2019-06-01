@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 
 //main() => runApp(new MyApp());
 import 'package:pub_client/pub_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'Database.dart';
 import 'DatabaseWrapper.dart';
 
 void main() async{
@@ -14,14 +16,14 @@ void main() async{
   print("Starting pubclient");
   var client = new PubClient();
   print("Starting app");
-  Future<List<Package>> packages = readData();
+  Future<List<PackageClass>> packages = AppSerialization(Database()).readData();
   packages.then((onValue) {
     if (onValue == null) {
       print("Fetching data");
-      packages = client.getAllPackages();
-      packages.then((onValue) {
-        saveData(onValue);
-        doStuff(onValue);
+      Future<List<Package>> packages = client.getAllPackages();
+      packages.then((onValue) async {
+        AppSerialization(Database()).saveData(onValue);
+        doStuff(package2packageClass(onValue));
       });
     } else {
       print("Data already fetched");
@@ -30,14 +32,16 @@ void main() async{
   });
 }
 
- doStuff(List<Package> packages) {
-  Package package = packages.first;
+  PackageClass package2packageClass(List<Package> package) {
+    package.map((it) => it.toJson()).toList().map((it) => packageClassFromJson(it)).toList();
+    return packageClassFromJson(package.toJson());
+  }
+
+ doStuff(List<PackageClass> packages) {
+  PackageClass package = packages.toList().first;
   print(package.name);
 
   print(package.hashCode);
-  print(package.latest);
-  print(package.new_version_url);
-  print(package.version_url);
   print(".....");
   print(package.toJson());
 }

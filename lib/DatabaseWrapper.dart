@@ -1,31 +1,39 @@
 import 'dart:convert';
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pub_client/pub_client.dart';
 
-Future<List<Package>> readData() async {
-  final prefs = await SharedPreferences.getInstance();
-  final key = 'database';
-  final value = prefs.getStringList(key) ?? null;
-  print('read: $value');
-  return deserialize(value);
-}
+import 'Database.dart';
+import 'PackageClass.dart';
 
- saveData(List<Package> packages) async {
-  final prefs = await SharedPreferences.getInstance();
-  final key = 'database';
-  prefs.setStringList(key, serialize(packages));
-}
 
-List<String> serialize(List<Package> packages) {
-  List<String> packageList = new List();
-  packages.forEach((package) 
-  {packageList.add(json.encode(package.toJson()));});
-  return packageList;
-}
+class AppSerialization {
 
-List<Package> deserialize(List<String> packageListString) {
-  List<Package> packageList = new List();
-  packageListString.forEach((packageString) {packageList.add(json.decode(packageString));});
-  return packageList;
+  final Database database;
+
+  AppSerialization(this.database);
+
+  Future<PackageClass> readData() async {
+    final prefs = database;
+    final key = 'database';
+    final value = prefs.getPackageClasses() ?? null;
+    print('read: $value');
+    return value;
+  }
+
+ saveData(PackageClass packages) async {
+    final prefs = database;
+    final key = 'database';
+    database.insertPackage(packages);
+  }
+
+  static List<String> serialize(List<PackageClass> packages) {
+    return packages
+        .map((package) => package.toJson())
+        .map(json.encode)
+        .toList();
+  }
+
+ static List<PackageClass> deserialize(List<String> packageListString) {
+    return packageListString.map((it) => packageClassFromJson(it)).toList();
+  }
 }
