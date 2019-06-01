@@ -107,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-    List<Package> newItems = await new PubClient().getAllPackages();
+    List<Package> newItems = await getAllPackages();
     setState(() {
       packages = newItems;
     });
@@ -223,8 +223,23 @@ class PackageWidgetState extends State<PackageWidget> {
             return ListView.builder(
                 itemCount: versions.length,
                 itemBuilder: (context, index) {
-                    return ListTile(
-                        title: Text(versions[index].version),
+                    return VersionWidget(
+                        version: versions[index],
+                        onTap: () {
+                            Navigator.of(context).push(CupertinoPageRoute(
+                                builder: (context) {
+                                    return Scaffold(
+                                        appBar: AppBar(
+                                            title: Text(snapshot.data.name + ", "+ versions[index].version ),
+                                        ),
+                                        body: PubspecWidget(
+                                            pubspec: versions[index].pubspec,
+                                        ),
+                                    );
+                                }
+                            ));
+                        },
+
                     );
                 },
             );
@@ -233,6 +248,41 @@ class PackageWidgetState extends State<PackageWidget> {
   }
 }
 
+class VersionWidget extends StatelessWidget {
+    final Version version;
+    final VoidCallback onTap;
 
+  const VersionWidget({Key key, this.version, this.onTap}) : super(key: key);
+
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+        onTap: onTap,
+        title: Text(version.version),
+    );
+  }
+}
+
+
+class PubspecWidget extends StatelessWidget {
+    final Pubspec pubspec;
+
+  const PubspecWidget({Key key, this.pubspec}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+        children: <Widget>[
+            ListTile(title: Text("author: " + pubspec.author)),
+            ListTile(title: Text("description: " + pubspec.author)),
+            ListTile(title: Text("environment: " + pubspec.author)),
+            ListTile(title: Text("homepage: " + pubspec.author)),
+            ListTile(title: Text("author: " + pubspec.author)),
+
+
+        )],
+    )
+  }
+}
 
 
