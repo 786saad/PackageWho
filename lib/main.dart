@@ -274,14 +274,13 @@ class PubspecWidget extends StatelessWidget {
     return ListView(
         children: <Widget>[
             ListTile(title: Text("author: " + pubspec.author)),
-            ListTile(title: Text("description: " + pubspec.author)),
-            ListTile(title: Text("environment: " + pubspec.author)),
-            ListTile(title: Text("homepage: " + pubspec.author)),
-            ListTile(title: Text("author: " + pubspec.author)),
+            ListTile(title: Text("description: " + pubspec.description)),
+            ListTile(title: Text("environment: " + pubspec.environment.toString())),
+            ListTile(title: Text("homepage: " + pubspec.homepage)),
+            ListTile(title: Text("dependencies: " + pubspec.dependencies.toString())),
 
-
-        )],
-    )
+        ],
+    );
   }
 }
 
