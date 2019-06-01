@@ -6,16 +6,26 @@ import 'package:pub_client/pub_client.dart';
 Future<List<Package>> readData() async {
   final prefs = await SharedPreferences.getInstance();
   final key = 'database';
-  final value = prefs.getString(key) ?? null;
+  final value = prefs.getStringList(key) ?? null;
   print('read: $value');
+  return deserialize(value);
 }
 
  saveData(List<Package> packages) async {
   final prefs = await SharedPreferences.getInstance();
   final key = 'database';
-  prefs.setString(key, serialize(packages));
+  prefs.setStringList(key, serialize(packages));
 }
 
-String serialize(List<Package> packages) {
-  return json.encode(packages.map((it) => it.toJson()).toList());
+List<String> serialize(List<Package> packages) {
+  List<String> packageList = new List();
+  packages.forEach((package) 
+  {packageList.add(json.encode(package.toJson()));});
+  return packageList;
+}
+
+List<Package> deserialize(List<String> packageListString) {
+  List<Package> packageList = new List();
+  packageListString.forEach((packageString) {packageList.add(json.decode(packageString));});
+  return packageList;
 }
